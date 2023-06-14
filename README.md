@@ -43,17 +43,17 @@ pip install mlflow
 ## Precalculated Datasets: 
 Notebooks can be run using the provided ***mega_scale_ddg_single_mut_with_seq_no_con.csv*** input file. However, parts of the project use embeddings from the pretrained Large Protein Language Model ProtT5 (https://github.com/agemagician/ProtTrans) which are computationally expensive to extract. Therefore, the calculated per_residue and per_protein embeddings for all sequences (....h5) and for a subset used here for training (.... h5) will also be provided separately. These files should be placed in the *'protT5/output* directory.
 
-The model development is done with the models defined in the automl module (automl folder). 
+The model development is done with the models defined in the protml module (protml folder). 
 
 
-# The automl training module
+# The protml training module
 
-AutoML uses [Hydra](https://hydra.cc/) for experiment configuration management to allow for quick and convenient experiment configuration and hyperparameter optimization. Hydra allows configuration of basic model parameters in hierachically structured .yaml files, that can be combined as well as overrideen from the commandline to easily modify individual hyperparameters.  
+protml uses [Hydra](https://hydra.cc/) for experiment configuration management to allow for quick and convenient experiment configuration and hyperparameter optimization. Hydra allows configuration of basic model parameters in hierachically structured .yaml files, that can be combined as well as overrideen from the commandline to easily modify individual hyperparameters.  
 
 For example, the configurations for the ML models would contain YAML descriptions for all individual components. For example, a simmple MLP `encoder` component looks as follows:
 
 ```yaml
-_target_: automl.models.encoders.VariationalEncoder
+_target_: protml.models.encoders.VariationalEncoder
 model_params:
   hidden_layer_sizes: [100, 100, 50]
   z_dim: ${z_dim}
@@ -67,14 +67,14 @@ The `_target_` attribute allows Hydra to instantiate the underlying Model_Class 
 
 ```console
 
-python3 -m automl.apps.train experiment=supervised/train_base \
+python3 -m protml.apps.train experiment=supervised/train_base \
     train_data= < PATH_TO_TRAINING_DATA >\
      val_data=D< PATH_TO_VALIDATION_DATA > \
         trainer.max_epochs=50000\
         model.encoder.model_params.hidden_layer_sizes=[100,100,100,100,100] z_dim=10
 ```
 
-where the *experiment* keyword specifies the basic experiment setup (Experiments are located in  *automl/configs/experiment* ) and the *model.encoder.model_params.hidden_layer_sizes=[100,100,100,100,100]*  specifies the new architecture of the encoder module. 
+where the *experiment* keyword specifies the basic experiment setup (Experiments are located in  *protml/configs/experiment* ) and the *model.encoder.model_params.hidden_layer_sizes=[100,100,100,100,100]*  specifies the new architecture of the encoder module. 
 
 
 Several run command examples can be  found in the 2. notebook : *Experiments_and_Model_training.ipynb*

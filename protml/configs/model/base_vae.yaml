@@ -1,4 +1,4 @@
-_target_: automl.models.VAE
+_target_: protml.models.VAE
 defaults:
   - encoder: vae_encoder
   - decoder: vae_decoder

@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 import pandas as pd
 
-import automl.utils as utils
+import protml.utils as utils
 
 log = utils.get_logger(__name__)
 

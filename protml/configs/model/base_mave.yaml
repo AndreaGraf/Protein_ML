@@ -1,4 +1,4 @@
-_target_: automl.models.ENC_M_dz.factory
+_target_: protml.models.ENC_M.factory
 defaults:
   - encoder: vae_encoder
   - measurement: ge_measurement

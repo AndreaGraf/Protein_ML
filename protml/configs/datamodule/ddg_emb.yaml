@@ -1,7 +1,6 @@
-_target_: automl.dataloaders.Embeddings_WT_DataModule
+_target_: protml.dataloaders.EmbeddingsDataModule
 datafiles:
   embeddings: ${embeddings}
-  wt_embeddings: ${wt_embeddings}
   train: ${train_data}
   val: ${val_data}
   test: ${test_data}

@@ -1,4 +1,4 @@
-_target_: automl.dataloaders.Sequence_WT_DataModule
+_target_: protml.dataloaders.SequenceDataModule
 datafiles:
   train: ${train_data}
   val: ${val_data}

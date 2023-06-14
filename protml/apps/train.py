@@ -9,7 +9,7 @@ import hydra
 from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule, seed_everything
 
-import automl.utils as utils
+import protml.utils as utils
 
 log = utils.get_logger(__name__)
 
