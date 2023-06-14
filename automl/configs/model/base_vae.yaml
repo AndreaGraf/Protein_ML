@@ -1,0 +1,7 @@
+_target_: automl.models.VAE
+defaults:
+  - encoder: vae_encoder
+  - decoder: vae_decoder
+  - scheduler: null
+  - optimizer: adam
+  - _self_

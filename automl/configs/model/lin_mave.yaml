@@ -1,0 +1,10 @@
+_target_: automl.models.ENC_M.factory
+defaults:
+  - encoder: vae_encoder
+  - measurement: linear_measurement
+  - loss_function: gaussnll_var
+  - scheduler: null
+  - optimizer: adam
+  - _self_
+
+
