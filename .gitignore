@@ -278,7 +278,13 @@ $RECYCLE.BIN/
 
 .vscode/
 outputs/
-Data/
+Data/data_sets/*
+Data/images/*.png
+Data/K50_dG_tables
+Data/Processed_K50_dG_datasets/*
+Data/*.csv
+Data/*.pdb
+
 
 logs/
 
