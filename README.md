@@ -2,6 +2,11 @@
 
 This repository holds the code for processing, analysis and model development on the **Mega-scale protein folding stability dataset** (https://www.biorxiv.org/content/10.1101/2022.12.06.519132v1.full.pdf) or to be used on data from https://mavedb.org/#/
 
+![Title_Image](Data/images/cover.jpeg)
+
+## Data
+
+Datasets can be downloaded from https://zenodo.org/record/7401275. Download the *K50_dG_tables.zip* and *Processed_K50_dG_datasets*
 
 The outline of the project is devided into the sections shown and discussed in the following notebooks:
 
