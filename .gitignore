@@ -282,20 +282,15 @@ Data/data_sets/*
 Data/images/*.png
 Data/K50_dG_tables
 Data/Processed_K50_dG_datasets/*
+!Data/Processed_K50_dG_datasets/K50_dG_Dataset1_Dataset2.csv
 Data/*.csv
 Data/*.pdb
 
 
 logs/
 
-# ray
-multirun/
-
 # End of https://www.gitignore.io/api/macos,linux,python,pycharm,windows,visualstudiocode
 
-random_notes.txt
-
 *.save*
-
 poetry.lock
-transformer example.py
+
