@@ -10,12 +10,16 @@ conda:
 build:
    image: latest
 
+mkdocs:
+  configuration: mkdocs.yml
+  fail_on_warning: false
+
 # This part is necessary otherwise the project is not built
 python:
    version: 3.8
    install:
       - method: pip
-        path: ./docs
+        path: .
         
 # By default readthedocs does not checkout git submodules
 submodules:                                                                                                                          
