@@ -12,7 +12,7 @@ build:
 
 # This part is necessary otherwise the project is not built
 python:
-   version: 3.9.12
+   version: 3.9
    install:
       - method: pip
         path: .
