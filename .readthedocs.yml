@@ -15,8 +15,10 @@ python:
    version: 3.8
    install:
       - method: pip
-        path: .
+        path: ./docs
         
 # By default readthedocs does not checkout git submodules
 submodules:                                                                                                                          
     include: all
+
+wNuQFPonwkkLatMraJgtD9yWKBneV>xQJKuRlmFM
