@@ -5,7 +5,7 @@
 version: 2
 
 conda:
-    environment: prot_ml.yml.yml
+    environment: prot_ml.yml
 
 build:
    image: latest
