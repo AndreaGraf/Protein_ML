@@ -21,11 +21,20 @@ def generate_dict_from_alphabet(alphabet: str) -> Dict[str, int]:
 
 def generate_ohe_from_sequence_data(
     sequences: np.array,
-    molecule_to_number: Dict = generate_dict_from_alphabet(alphabet_map["protein"]),
-) -> np.ndarray:
-    """generate one hot encoded data from a sequence"""
+    molecule_to_number: Dict = None) -> np.ndarray:
+    """generate one hot encoded data from a sequence
+        Args:
+            sequences (np.array): Input array of sequences.
+            molecule_to_number (Dict): Dictionary mapping the alphabet to their positions.
+            
+        Returns:
+            np.ndarray: One hot encoded array.
+    """
 
     # one hot encoding:
+    if molecule_to_number is None:
+        molecule_to_number = generate_dict_from_alphabet(alphabet_map["protein"])
+   
     seq_ohe= np.zeros((sequences.shape[0], len(sequences[0]),
                         len(molecule_to_number)),dtype = np.float32)
     for i, seq in enumerate(sequences):

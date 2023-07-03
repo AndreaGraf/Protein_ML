@@ -66,7 +66,8 @@ class SequenceDataModule(pl.LightningDataModule):
         required columns in the csv file are "seq" and "y"
         Args:
             filename: path to csv file
-        Returns: TensorDataset with one-hot encoded sequences and labels
+        Returns: 
+            TensorDataset with one-hot encoded sequences and labels
         """
 
         df = pd.read_csv(filename, index_col=0)
@@ -206,7 +207,8 @@ class Sequence_WT_DataModule(pl.LightningDataModule):
         required columns in the csv file are "seq","wt" and "y"
         Args:
             filename: path to csv file
-        Returns: TensorDataset with one-hot encoded sequences and labels
+        Returns: 
+            TensorDataset with one-hot encoded sequences and labels
         """
 
         df = pd.read_csv(filename, index_col=0) 
@@ -376,7 +378,8 @@ class EmbeddingsDataModule(pl.LightningDataModule):
         required columns in the csv file are "seq","y" and "id" 
         Args:
             filename: path to csv file
-        Returns: TensorDataset with one-hot encoded sequences and labels
+        Returns: 
+            TensorDataset with one-hot encoded sequences and labels
         """
 
         df = pd.read_csv(filename, index_col=0)

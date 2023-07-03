@@ -8,10 +8,29 @@ from .util import sample_latent
 
 
 class ENC_M_dz(pl.LightningModule):
-    """ Supervised pytorch lightning model class with encoder part to embed the sequences and a 
-    supervised measurement to predict scores. The supervised measurement trains on the Ndim distance between the 
-    embedding of a sequence and the reference wildtypd.  
+    """ Supervised pytorch lightning model with an encoder and a measurement/prediction model
+            The supervised measurement trains on the Ndim distance between the 
+            embeddings of a sequence and the reference wildtypd.
+        
+        Args:
+            datamodule: pytorch lightning datamodule with sequences and labels and wt sequences          
+            encoder: encoder model 
+            measurement: measurement model (options: Linear, General Epistasis Model)
+            optimizer: optimizer
+            loss_function: loss function model( options: )
+            scheduler: scheduler
+
+        Attributes:
+            dataset: pytorch lightning datamodule
+            encoder: encoder model
+            measurement: measurement model
+            optimizer: optimizer
+            loss_function: loss function
+            scheduler: scheduler
+            optimizer_params: optimizer parameters
+            scheduler_params: scheduler parameters  
     """
+
     def __init__(self, datamodule, encoder, measurement, optimizer, loss_function, scheduler=None) -> None:
         super().__init__()
 

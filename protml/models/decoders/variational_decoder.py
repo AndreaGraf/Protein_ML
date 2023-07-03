@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Sequence
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from scipy.special import erfinv
+#from scipy.special import erfinv
 
 from ..components.loss_functions import KLD_diag_gaussians
 from ..util import nonlinearities_map
@@ -11,10 +11,32 @@ from ..util import nonlinearities_map
 
 class MLPDecoder(nn.Module):
     """
-    standard MLP decoder class for the VAE model.
+    standard multilayer perceptron decoder class
+    Args:
+        model_params: dictionary of model parameters
+        dataset_params: reqiuired information on the dataset 
+    Attributes:
+        seq_len: length of the sequence
+        alphabet_size: size of the alphabet
+        hidden_layer_sizes: list of hidden layer sizes
+        z_dim: dimension of the latent space
+        dropout_prob: dropout probability
+        include_temperature_scaler: whether to include a temperature scaler
+        temperature_scaler: temperature scaler
+        mu_bias_init: bias initialization for mu
+        logvar_init: logvar initialization
+        clip_log_var: whether to clip logvar
+        clip_vals: values to clip logvar to
+        initial_nonlinearities: initial nonlinearity function
+        final_nonlinearity: final nonlinearity function
+        channel_size: size of the channel
+        last_hidden_layer_weight: last hidden layer weight
+        last_hidden_layer_bias: last hidden layer bias
+        temperature_scaler_mean: temperature scaler mean
+        temperature_scaler_log_var: temperature scaler logvar
     """
 
-    def __init__(self, model_params, dataset_params: Dict[str, int]) -> None:
+    def __init__(self, model_params:Dict, dataset_params: Dict) -> None:
 
         super().__init__()
         self.seq_len = dataset_params["sequence_length"]
@@ -34,8 +56,7 @@ class MLPDecoder(nn.Module):
         self.initial_nonlinearities = nonlinearities_map[model_params.get("initial_non_linearities", "relu")]
         self.final_nonlinearity = nonlinearities_map[model_params.get("final_nonlinearity","relu")]
 
-
-        hidden_modules: List[nn.Module] = list()
+        hidden_modules: List[nn.Module] = []
         num_features: int = self.z_dim
 
         for i in range(len(self.hidden_layer_sizes)):
@@ -137,7 +158,30 @@ class MLPDecoder(nn.Module):
 
 class BayesianDecoder(nn.Module):
     """
-    Bayesian MLP decoder class for the VAE model.
+    A bayesian decoder sampling from a distribution  with variance var around a mean value in each 
+    layer. The variances are learned as a parameter of the model.
+    Args:
+        model_params: dictionary of model parameters
+        dataset_params: reqiuired information on the dataset 
+    Attributes:
+        seq_len: length of the sequence
+        alphabet_size: size of the alphabet
+        hidden_layer_sizes: list of hidden layer sizes
+        z_dim: dimension of the latent space
+        dropout_prob: dropout probability
+        include_temperature_scaler: whether to include a temperature scaler
+        temperature_scaler: temperature scaler
+        mu_bias_init: bias initialization for mu
+        logvar_init: logvar initialization
+        clip_log_var: whether to clip logvar
+        clip_vals: values to clip logvar to
+        initial_nonlinearities: initial nonlinearity function
+        final_nonlinearity: final nonlinearity function
+        channel_size: size of the channel
+        last_hidden_layer_weight: last hidden layer weight
+        last_hidden_layer_bias: last hidden layer bias
+        temperature_scaler_mean: temperature scaler mean
+        temperature_scaler_log_var: temperature scaler logvar
     """
 
     def __init__(self, model_params, dataset_params: Dict[str, int]) -> None:
@@ -155,8 +199,8 @@ class BayesianDecoder(nn.Module):
         if self.clip_log_var:
             self.clip_vals = model_params.get("clip_vals", [-50.0, 50.0])
 
-        hidden_mean_modules: List[nn.Module] = list()
-        hidden_log_var_modules: List[nn.Module] = list()
+        hidden_mean_modules: List[nn.Module] = []
+        hidden_log_var_modules: List[nn.Module] = []
         num_features: int = self.z_dim
 
         for i in range(len(self.hidden_layer_sizes)):

@@ -1,1 +1,19 @@
-site_name: My Docs
+site_name: Protein_ML Documentation
+
+theme:
+  name: material
+  palette:
+    primary: blue
+    accent: blue
+ 
+
+plugins:
+  - mkdocstrings
+ 
+nav:
+  - index.md
+  - tutorials.md
+  - how-to-guides.md
+  - reference.md
+  - explanation.md
+

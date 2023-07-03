@@ -16,7 +16,8 @@ def get_logger(name=__name__) -> logging.Logger:
     """Initializes multi-GPU-friendly python command line logger.
        Args:
             name (str, optional): Name of the logger. Defaults to __name__.
-            Returns: Initialized logger.
+        Returns: 
+            Initialized logger.
     """
 
     logger = logging.getLogger(name)

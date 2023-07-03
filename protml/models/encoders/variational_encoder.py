@@ -7,6 +7,19 @@ from ..util import nonlinearities_map
 
 
 class VariationalEncoder(nn.Module):
+    """ Defining the architecture of a MLP encoder
+        Args:
+            model_params(dict): dictionary containing the model parameters
+            dataset_params(dict): dictionary containing the dataset parameters
+
+        Attributes:
+            seq_len(int): length of the input sequence
+            alphabet_size(int): size of the alphabet
+            hidden_layer_sizes(list): list containing the sizes of the hidden layers
+            z_dim(int): dimension of the latent space
+            dropout_prob(float): dropout probability
+            non_linearity(function): non-linearity function
+    """
     def __init__(
         self,
         model_params,
@@ -30,7 +43,7 @@ class VariationalEncoder(nn.Module):
 
         self.channel_size = self.alphabet_size
 
-        hidden_modules = list()
+        hidden_modules = []
         num_features = self.channel_size * self.seq_len
         
         for i in range(len(self.hidden_layer_sizes)):

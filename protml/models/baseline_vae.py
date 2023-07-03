@@ -8,6 +8,27 @@ from .util import sample_latent
 
 
 class VAE(pl.LightningModule):
+    """ Variational autoencoder model that learns to generate sequences with a stability similar to wt
+        
+        Args:
+            datamodule: pytorch lightning datamodule with sequences and labels           
+            encoder: encoder model 
+            measurement: measurement model (options: Linear, General Epistasis Model)
+            optimizer: optimizer
+            loss_function: loss function model( options: )
+            scheduler: scheduler
+
+        Attributes:
+            dataset: pytorch lightning datamodule
+            encoder: encoder model
+            measurement: measurement model
+            optimizer: optimizer
+            loss_function: loss function
+            scheduler: scheduler
+            optimizer_params: optimizer parameters
+            scheduler_params: scheduler parameters
+    """
+
     def __init__(self, datamodule, encoder, decoder, optimizer, scheduler=None) -> None:
         super().__init__()
 
@@ -60,9 +81,7 @@ class VAE(pl.LightningModule):
         return {"val/loss": neg_ELBO}
 
     def on_training_epoch_end(self, outputs: Any) -> None:
-        losses = []
-        for out in outputs:
-            losses.append(out["loss"])
+        losses = [out["loss"] for out in outputs]
 
         loss = torch.mean(torch.stack(losses))
         self.log("train/loss", loss)
