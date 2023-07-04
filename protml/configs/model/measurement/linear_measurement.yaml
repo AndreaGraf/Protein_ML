@@ -1,4 +1,0 @@
-_target_: protml.models.components.Linear_Measurement
-model_params:
-  num_hidden_nodes: 50
-  z_dim: ${z_dim}
