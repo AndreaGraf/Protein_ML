@@ -1,0 +1,7 @@
+# @package trainer
+
+defaults:
+  - lightning/default@_here_
+
+accelerator: gpu
+devices: 1

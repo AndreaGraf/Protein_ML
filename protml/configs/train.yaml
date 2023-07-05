@@ -1,0 +1,49 @@
+# @package _global_
+
+# specify here default configuration
+# order of defaults determines the order in which configs override each other
+defaults: 
+  - _self_
+  - model: ???
+  - datamodule: ???
+  - callbacks: lightning
+  - trainer: lightning/default
+  - logger: mlflow
+  - paths: default
+  - hydra: default
+
+  # experiment configs allow for version control of specific hyperparameters
+  # e.g. best hyperparameters for given model and datamodule
+  - experiment: null
+
+   # debugging config (enable through command line, e.g. `python train.py debug=default)
+  - debug: null
+
+# Possible inputs to the trainer
+embeddings: null
+wt_embeddings: null
+train_data: null
+val_data: null
+test_data: null
+
+# task name, determines output directory path
+task_name: "train"
+
+# set False to skip model training
+train: True
+
+# evaluate on test set, using best model weights achieved during training
+# lightning chooses best weights based on the metric specified in checkpoint callback
+test: False
+
+# Only do the model evaluation
+eval: False
+
+# simply provide checkpoint path to resume training
+ckpt_path: null
+
+# seed for random number generators in pytorch, numpy and python.random
+seed: null
+
+# print configuration
+print_config: true

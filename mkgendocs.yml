@@ -1,0 +1,101 @@
+sources_dir: docs
+templates_dir: templates
+
+site_name: Protein_ML
+
+# Repository
+repo_name: Protein_ML
+repo: https://github.com/AndreaGraf/Protein_ML
+version: read_the_docs
+
+#This specifies the autogeneration portion
+pages:
+  - page: "modules/protml/dataloaders/ddg_data.md"
+    source: "protml/dataloaders/ddg_data.py"
+    classes:
+      - SequenceDataModule
+      - Sequence_WT_DataModule
+      - EmbeddingsDataset
+      - EmbeddingsDataModule
+      - Embeddings_WT_Dataset
+      - Embeddings_WT_DataModule
+
+  - page: "modules/protml/dataloaders/utils.md"
+    source: "protml/dataloaders/utils.py"
+    functions:
+      - generate_dict_from_alphabet
+      - generate_ohe_from_sequence_data
+      - pad_sequence
+
+  - page: "modules/protml/utils/lightning_utils.md"
+    source: "protml/utils/lightning_utils.py"
+    functions:
+      - get_logger
+      - extras
+      - print_config
+      - log_hyperparameters
+
+  - page: "modules/protml/utils/output_utils.md"
+    source: "protml/utils/output_utils.py"
+    functions:
+      - __parse_range
+      - output_csv
+
+  - page: "modules/protml/models/baseline_supervised.md"
+    source: "protml/models/baseline_supervised.py"
+    classes:
+      - ENC_M
+
+  - page: "modules/protml/models/util.md"
+    source: "protml/models/util.py"
+    functions:
+      - get_l2_norm
+      - sample_latent
+
+  - page: "modules/protml/models/baseline_vae.md"
+    source: "protml/models/baseline_vae.py"
+    classes:
+      - VAE
+
+  - page: "modules/protml/models/dz_supervised.md"
+    source: "protml/models/dz_supervised.py"
+    classes:
+      - ENC_M_dz
+
+  - page: "modules/protml/models/encoders/variational_encoder.md"
+    source: "protml/models/encoders/variational_encoder.py"
+    classes:
+      - VariationalEncoder
+
+  - page: "modules/protml/models/components/loss_functions.md"
+    source: "protml/models/components/loss_functions.py"
+    classes:
+      - MSE_Loss
+      - GaussNLLLoss
+      - GaussNLL_VAR0_Loss
+      - GaussNLL_VAR_Loss
+      - NoiseLayer
+      - GaussianNoise
+    functions:
+      - KLD_diag_gaussians
+
+  - page: "modules/protml/models/components/downstream_models.md"
+    source: "protml/models/components/downstream_models.py"
+    classes:
+      - Mave_Global_Epistasis_Measurement
+      - Linear_Measurement
+
+  - page: "modules/protml/models/decoders/variational_decoder.md"
+    source: "protml/models/decoders/variational_decoder.py"
+    classes:
+      - MLPDecoder
+      - BayesianDecoder
+
+  - page: "modules/protml/apps/train.md"
+    source: "protml/apps/train.py"
+    functions:
+      - log_hyperparameters
+      - load_data
+      - train
+      - do_train
+
