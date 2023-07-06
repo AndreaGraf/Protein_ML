@@ -725,24 +725,10 @@
   
 
 
-<h1 id="protml-module-documentation">protml module documentation</h1>
-<p>protml uses <a href="https://hydra.cc/">Hydra</a> for experiment configuration management to allow for quick and convenient experiment configuration and hyperparameter optimization. Hydra allows configuration of basic model parameters in hierachically structured .yaml files, that can be combined as well as overrideen from the commandline to easily modify individual hyperparameters.  </p>
-<p>For example, the configurations for the ML models would contain YAML descriptions for all individual components. For example, a simmple MLP <code>encoder</code> component looks as follows:</p>
-<pre><code class="language-yaml">_target_: protml.models.encoders.VariationalEncoder
-model_params:
-  hidden_layer_sizes: [100, 100, 50]
-  z_dim: ${z_dim}
-  nonlinear_activation: &quot;relu&quot;
-  dropout_prob: 0.0
-  mu_bias_init: 0.1
-  log_var_bias_init: -10.0
-</code></pre>
-<pre><code class="language-console">python3 -m protml.apps.train experiment=supervised/train_base \
-    train_data= &lt; PATH_TO_TRAINING_DATA &gt;\
-     val_data=D&lt; PATH_TO_VALIDATION_DATA &gt; \
-        trainer.max_epochs=50000\
-        model.encoder.model_params.hidden_layer_sizes=[100,100,100,100,100] z_dim=10
-</code></pre>
+<h1 id="protml-module-documentation">protml Module Documentation</h1>
+<p>protml holds models and model components for predicting protein phenotype from sequence. The module uses <a href="https://hydra.cc/">Hydra</a> for experiment configuration management to allow for quick and convenient experiment configuration and hyperparameter optimization.</p>
+<p>The configurations model parameters is set in hierachically structured .yaml files in the <strong>configs/</strong> folder. Parameter options can be combined as well as overrideen from the commandline to easily modify individual hyperparameters.  </p>
+<p>Setup for basic experiments are in <strong>configs/experiments/</strong></p>
 
 
 
