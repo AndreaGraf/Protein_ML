@@ -24,7 +24,7 @@ Analysis of the predictions made by different model stages and the modelling ass
 
 ## Computational Environment:
 
-required pacages can be installed with  
+required packages can be installed with  
 
 ```console
 conda env create -f prot_ml.yml
