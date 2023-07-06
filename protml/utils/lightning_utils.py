@@ -1,3 +1,5 @@
+"""Module with utilities for PyTorch Lightning models"""
+
 import logging
 import warnings
 from typing import List, Sequence
@@ -6,12 +8,17 @@ import pytorch_lightning as pl
 import rich.syntax
 import rich.tree
 from omegaconf import DictConfig, OmegaConf
-from pytorch_lightning.utilities import rank_zero_only
-
+#from pytorch_lightning.utilities.rank_zero import rank_zero_only
+from lightning_utilities.core.rank_zero import rank_zero_only
 
 
 def get_logger(name=__name__) -> logging.Logger:
-    """Initializes multi-GPU-friendly python command line logger."""
+    """Initializes multi-GPU-friendly python command line logger.
+       Args:
+            name (str, optional): Name of the logger. Defaults to __name__.
+        Returns: 
+            Initialized logger.
+    """
 
     logger = logging.getLogger(name)
 
@@ -69,8 +76,10 @@ def print_config(
 
     Args:
         config (DictConfig): Configuration composed by Hydra.
-        print_order (Sequence[str], optional): Determines in what order config components are printed.
-        resolve (bool, optional): Whether to resolve reference fields of DictConfig.
+        print_order (Sequence[str], optional): Determines in what order config 
+                                            components are printed.       
+        resolve (bool, optional): Whether to resolve
+                                reference fields of DictConfig.
     """
 
     style = "dim"
@@ -106,23 +115,20 @@ def print_config(
 def log_hyperparameters(
     config: DictConfig,
     model: pl.LightningModule,
-    datamodule: pl.LightningDataModule,
     trainer: pl.Trainer,
-    callbacks: List[pl.Callback],
-    logger: List[pl.loggers.logger.Logger],
 ) -> None:
     """Controls which config parts are saved by Lightning loggers.
 
-    Additionaly saves:
-    - number of model parameters
+    Args:
+        config (DictConfig): Configuration composed by Hydra.   
+        model (pl.LightningModule): Lightning model.
     """
 
-    hparams = {}
-
-    # choose which parts of hydra config are saved by loggers
-    hparams["trainer"] = config["trainer"]
-    hparams["model"] = config["model"]
-    hparams["datamodule"] = config["datamodule"]
+     # choose which parts of hydra config are saved by loggers
+    hparams = {
+            "trainer":config["trainer"],
+            "model": config["model"],
+    }
 
     if "seed" in config:
         hparams["seed"] = config["seed"]
@@ -131,26 +137,16 @@ def log_hyperparameters(
 
     # save number of model parameters
     hparams["model/params/total"] = sum(p.numel() for p in model.parameters())
-    hparams["model/params/trainable"] = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    hparams["model/params/non_trainable"] = sum(p.numel() for p in model.parameters() if not p.requires_grad)
+    hparams["model/params/trainable"] = sum(
+                                        p.numel()
+                                        for p in model.parameters()
+                                        if p.requires_grad
+                                        )
+    hparams["model/params/non_trainable"] = sum(
+                                                p.numel()
+                                                for p in model.parameters()
+                                                if not p.requires_grad
+                                                )
 
     # send hparams to all loggers
     trainer.logger.log_hyperparams(hparams)
-
-
-def finish(
-    config: DictConfig,
-    model: pl.LightningModule,
-    datamodule: pl.LightningDataModule,
-    trainer: pl.Trainer,
-    callbacks: List[pl.Callback],
-    logger: List[pl.loggers.logger.Logger],
-) -> None:
-    """Makes sure everything closed properly."""
-
-    # without this sweeps with wandb logger might crash!
-    for lg in logger:
-        if isinstance(lg, pl.loggers.wandb.WandbLogger):
-            import wandb
-
-            wandb.finish()

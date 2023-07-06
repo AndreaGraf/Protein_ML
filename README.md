@@ -53,7 +53,9 @@ The model development is done with the models defined in the protml module (prot
 
 # The protml training module
 
-protml uses [Hydra](https://hydra.cc/) for experiment configuration management to allow for quick and convenient experiment configuration and hyperparameter optimization. Hydra allows configuration of basic model parameters in hierachically structured .yaml files, that can be combined as well as overrideen from the commandline to easily modify individual hyperparameters.  
+The protml module defines models and model components to train on protein sequences and map them to phenotype. The protml model uses [Hydra](https://hydra.cc/) for experiment configuration management to allow for quick and convenient experiment configuration and hyperparameter optimization. Hydra allows configuration of basic model parameters in hierachically structured .yaml files, that can be combined as well as overrideen from the commandline to easily modify individual hyperparameters.  
+
+[Documentation of all module components](https://andreagraf.github.io/Protein_ML/)
 
 For example, the configurations for the ML models would contain YAML descriptions for all individual components. For example, a simmple MLP `encoder` component looks as follows:
 

@@ -1,3 +1,6 @@
+""" Supervised pytorch lightning models with an encoder and a 
+    supervised measurement to predict scores""" 
+
 from typing import Any, Optional
 import hydra
 import pytorch_lightning as pl
@@ -8,9 +11,28 @@ from .util import sample_latent
 
 
 class ENC_M(pl.LightningModule):
-    """ Supervised pytorch lightning model class with encoder part to embed the sequence and a 
-    supervised measurement to predict scores 
+    """ Supervised pytorch lightning model with an encoder and a measurement/prediction model
+        
+        Args:
+            datamodule: pytorch lightning datamodule with sequences and labels           
+            encoder: encoder model 
+            measurement: measurement model (options: Linear, General Epistasis Model)
+            optimizer: optimizer
+            loss_function: loss function model( options: )
+            scheduler: scheduler
+
+        Attributes:
+            dataset: pytorch lightning datamodule
+            encoder: encoder model
+            measurement: measurement model
+            optimizer: optimizer
+            loss_function: loss function
+            scheduler: scheduler
+            optimizer_params: optimizer parameters
+            scheduler_params: scheduler parameters
+
     """
+
     def __init__(self, datamodule, encoder, measurement, optimizer, loss_function, scheduler=None) -> None:
         super().__init__()
 
@@ -42,39 +64,43 @@ class ENC_M(pl.LightningModule):
         self.optimizer = hydra.utils.instantiate(self.optimizer_params, params=self.parameters())
         if self.scheduler_params is None:
             return self.optimizer
-        else:
-            self.scheduler = hydra.utils.instantiate(self.scheduler_params, optimizer=self.optimizer)
-            return self.optimizer, self.scheduler
+        
+        self.scheduler = hydra.utils.instantiate(self.scheduler_params, optimizer=self.optimizer)
+        return self.optimizer, self.scheduler
+
 
     def forward(self, x):
         mu, _ = self.encoder(x)
         y_hat = self.measurement(mu)
         return y_hat
 
-    def training_step(self, batch, batch_idx) -> STEP_OUTPUT:
-        x,y = batch
+
+    def step_loss(self, batch):
+        x, y = batch
         y_hat = self.forward(x)
-        mp_loss = self.loss_function(y_hat, y) 
+        mp_loss = self.loss_function(y_hat, y)
+        return mp_loss
+
+
+    def training_step(self, batch, batch_idx) -> STEP_OUTPUT:
+        mp_loss = self.step_loss(batch)
         self.log('train/loss', mp_loss, prog_bar=True)
         return {"loss": mp_loss}
 
 
     def validation_step(self, batch, batch_idx) -> STEP_OUTPUT:
-        x,y = batch
-        y_hat = self.forward(x)
-        mp_loss = self.loss_function(y_hat, y) 
+        mp_loss = self.step_loss(batch)
         self.log('val/loss', mp_loss, prog_bar=True)
         return {"loss": mp_loss}
  
 
     def test_step(self, batch, batch_idx) -> STEP_OUTPUT:
-        x,y = batch
-        y_hat = self.forward(x)
-        mp_loss = self.loss_function(y_hat, y) 
+        mp_loss = self.step_loss(batch) 
         self.log('test/loss', mp_loss)
         return {"loss": mp_loss}
     
+
     def predict_step(self, batch, batch_idx) -> STEP_OUTPUT:
-        x,y = batch
+        x,_ = batch
         y_hat = self.forward(x)
         return y_hat
