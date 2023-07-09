@@ -1,7 +1,0 @@
-# @package trainer
-
-defaults:
-  - lightning/default@_here_
-
-accelerator: cpu
-devices: 1
