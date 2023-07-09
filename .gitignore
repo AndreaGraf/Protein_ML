@@ -221,7 +221,7 @@ venv.bak/
 .ropeproject
 
 # mkdocs documentation
-site
+site/*
 
 # mypy
 .mypy_cache/
@@ -295,6 +295,24 @@ logs/
 poetry.lock
 
 
+site/404.html
+site/index.html
+site/sitemap.xml.gz
+site/modules/protml/apps/train/index.html
+site/modules/protml/dataloaders/ddg_data/index.html
+site/modules/protml/dataloaders/utils/index.html
+site/modules/protml/models/baseline_supervised/index.html
+site/modules/protml/models/baseline_vae/index.html
+site/modules/protml/models/components/downstream_models/index.html
+site/modules/protml/models/components/loss_functions/index.html
+site/modules/protml/models/decoders/variational_decoder/index.html
+site/modules/protml/models/dz_supervised/index.html
+site/modules/protml/models/encoders/variational_encoder/index.html
+site/modules/protml/models/util/index.html
+site/modules/protml/utils/lightning_utils/index.html
+site/modules/protml/utils/output_utils/index.html
+mkdocs.yml
+mkgendocs.yml
 site/404.html
 site/index.html
 site/sitemap.xml.gz
