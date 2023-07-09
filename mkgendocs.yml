@@ -1,5 +1,5 @@
 sources_dir: docs
-templates_dir: templates
+templates: templates
 
 site_name: Protein_ML
 
@@ -7,6 +7,8 @@ site_name: Protein_ML
 repo_name: Protein_ML
 repo: https://github.com/AndreaGraf/Protein_ML
 version: read_the_docs
+
+
 
 #This specifies the autogeneration portion
 pages:

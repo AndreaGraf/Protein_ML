@@ -1,4 +1,4 @@
-"""_module defining the measurement maps from the encoded sequence to a single value prediction
+""" Module defining the measurement maps from the encoded sequence to a single value prediction
 """
 
 import torch

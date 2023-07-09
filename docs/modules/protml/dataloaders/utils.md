@@ -1,4 +1,5 @@
-#
+A collection of utility functions for handeling protein and DNA sequence data
+
 
 
 ### generate_dict_from_alphabet

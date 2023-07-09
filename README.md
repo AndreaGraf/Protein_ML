@@ -76,7 +76,7 @@ The `_target_` attribute allows Hydra to instantiate the underlying Model_Class 
 
 python3 -m protml.apps.train experiment=supervised/train_base \
     train_data= < PATH_TO_TRAINING_DATA >\
-     val_data=D< PATH_TO_VALIDATION_DATA > \
+     val_data= < PATH_TO_VALIDATION_DATA > \
         trainer.max_epochs=50000\
         model.encoder.model_params.hidden_layer_sizes=[100,100,100,100,100] z_dim=10
 ```

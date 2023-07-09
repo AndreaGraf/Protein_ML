@@ -1,4 +1,6 @@
-#
+Supervised pytorch lightning models with an encoder and a
+supervised measurement to predict scores
+
 
 
 ## ENC_M

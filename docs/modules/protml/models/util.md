@@ -1,4 +1,5 @@
-#
+Utility functions used by different models
+
 
 
 ### get_l2_norm
