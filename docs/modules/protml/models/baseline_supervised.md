@@ -1,5 +1,7 @@
- Supervised pytorch lightning models with an encoder and a 
-    supervised measurement to predict scores
+Supervised pytorch lightning models with an encoder and a
+supervised measurement to predict scores
+
+
 
 ## ENC_M
 [source](https://github.com/AndreaGraf/Protein_ML/blob/read_the_docs/protml/models/baseline_supervised.py/#L13)

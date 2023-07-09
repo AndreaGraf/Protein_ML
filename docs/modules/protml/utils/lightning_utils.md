@@ -1,5 +1,7 @@
 Module with utilities for PyTorch Lightning models
 
+
+
 ### get_logger
 [source](https://github.com/AndreaGraf/Protein_ML/blob/read_the_docs/protml/utils/lightning_utils.py/#L15)
 ```python

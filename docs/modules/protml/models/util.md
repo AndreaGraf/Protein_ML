@@ -1,5 +1,7 @@
 Utility functions used by different models
 
+
+
 ### get_l2_norm
 [source](https://github.com/AndreaGraf/Protein_ML/blob/read_the_docs/protml/models/util.py/#L18)
 ```python

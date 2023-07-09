@@ -1,6 +1,8 @@
 Module containing loss functions for training,
 
 
+
+
 ## MSE_Loss
 [source](https://github.com/AndreaGraf/Protein_ML/blob/read_the_docs/protml/models/components/loss_functions.py/#L12)
 ```python 
