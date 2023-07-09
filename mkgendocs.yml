@@ -12,9 +12,6 @@ version: read_the_docs
 
 #This specifies the autogeneration portion
 pages:
-  - page: "modules/protml/index.md"
-    source: "protml/__init__.py"
-
   - page: "modules/protml/dataloaders/ddg_data.md"
     source: "protml/dataloaders/ddg_data.py"
     classes:
@@ -62,9 +59,6 @@ pages:
     classes:
       - VAE
 
-  - page: "modules/protml/models/index.md"
-    source: "protml/models/__init__.py"
-
   - page: "modules/protml/models/dz_supervised.md"
     source: "protml/models/dz_supervised.py"
     classes:
@@ -74,9 +68,6 @@ pages:
     source: "protml/models/encoders/variational_encoder.py"
     classes:
       - VariationalEncoder
-
-  - page: "modules/protml/models/components/index.md"
-    source: "protml/models/components/__init__.py"
 
   - page: "modules/protml/models/components/loss_functions.md"
     source: "protml/models/components/loss_functions.py"
