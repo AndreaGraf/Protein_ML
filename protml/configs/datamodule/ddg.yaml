@@ -1,0 +1,9 @@
+_target_: protml.dataloaders.SequenceDataModule
+datafiles:
+  train: ${train_data}
+  val: ${val_data}
+  test: ${test_data}
+params:
+  batch_size: 256
+  num_workers: 4
+  sequence_length: ${seq_len}
