@@ -25,7 +25,7 @@ def get_T5_model():
     return model, tokenizer
 
 
-def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_protein:bool, max_length:int = 73, 
+def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_protein:bool, word_size:int=1, max_length:int = 73, 
                    max_residues:int=4000, max_seq_len:int=1000, max_batch:int=100, max_entries:int=5000, h5_filename:str='residue_embeddings.h5',
                     h5_protein_filename:str ='protein_embeddings.h5' ) -> dict:
     """  Generate embeddings via batch-processing
@@ -62,7 +62,7 @@ def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_pr
         # count residues in current batch and add the last sequence length to
         # avoid that batches with (n_res_batch > max_residues) get processed 
         n_res_batch = sum(s_len for _, _, s_len in batch)
-        n_res_batch += seq_len #why?
+        n_res_batch += seq_len 
         if len(batch) >= max_batch or n_res_batch>=max_residues or seq_idx==len(seqs) or seq_len>max_seq_len:
             pdb_ids, seqs, seq_lens = zip(*batch)
             batch = []
@@ -86,7 +86,10 @@ def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_pr
                 emb = embedding_repr.last_hidden_state[batch_idx,:]
                
                 if per_residue: # store per-residue embeddings (Lx1024)
-                    results["residue_embs"][ identifier ] = emb.detach().cpu().numpy().squeeze()
+                    #average pooling over words
+                    emb = emb.detach().cpu().numpy().squeeze()
+                    emb_s =  np.array([emb[i:i+word_size].mean(dim=0) for i in range(0,emb.shape[0],word_size)])
+                    results["residue_embs"][ identifier ] = emb_s
                 if per_protein: # apply average-pooling to derive per-protein embeddings (1024-d)
                     protein_emb = emb[:s_len].mean(dim=0)
                     results["protein_embs"][identifier] = protein_emb.detach().cpu().numpy().squeeze()
@@ -160,7 +163,7 @@ def main():
         protein_embeddings_name = os.path.join(directory, 'protein_'+emb_filename)
 
     #load data
-    df = pd.read_csv(filename), index_col=0)
+    df = pd.read_csv(filename, index_col=0)
 
     #strip padding for embedding
     df['seq'] = df.seq.apply(lambda x: x.strip('-'))
