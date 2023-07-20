@@ -1,12 +1,18 @@
-from transformers import T5EncoderModel, T5Tokenizer, T5ForConditionalGeneration
+"""Script to generate embeddings for protein sequences using the T5 protein language model
+https://github.com/agemagician/ProtTrans
+
+Note: if single residues are embedded this generates very large files
+
+"""
+import sys
+import os
+from transformers import T5EncoderModel, T5Tokenizer
 import torch
 import h5py
 import time
-from typing import List, Tuple
+import pandas as pd
+from typing import List, Tuple, Dict
 
-#ensure that GPU is available
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-print("Using {}".format(device))
 
 
 # Load ProtT5 in half-precision (more specifically: the encoder-part of ProtT5-XL-U50) 
@@ -19,8 +25,9 @@ def get_T5_model():
     return model, tokenizer
 
 
-def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_protein:bool, max_length = 73, 
-                   max_residues=4000, max_seq_len=1000, max_batch=100 ) -> dict:
+def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_protein:bool, max_length:int = 73, 
+                   max_residues:int=4000, max_seq_len:int=1000, max_batch:int=100, max_entries:int=5000, h5_filename:str='residue_embeddings.h5',
+                    h5_protein_filename:str ='protein_embeddings.h5' ) -> dict:
     """  Generate embeddings via batch-processing
 
     Args:
@@ -39,9 +46,10 @@ def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_pr
     """
 
     results = {
-                "residue_embs" : dict(), 
-                 "protein_embs" : dict(),
-               }
+        "residue_embs": {},
+        "protein_embs": {},
+    }
+
 
     start = time.time()
     batch = []
@@ -72,8 +80,8 @@ def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_pr
                 continue
 
             for batch_idx, identifier in enumerate(pdb_ids): # for each protein in the current mini-batch
-                if batch_idx % 100 ==0:
-                    print('processig batch ', batch_idx, f'satrting id: {pdb_ids[0]}' )
+                
+                    
                 s_len = seq_lens[batch_idx]
                 emb = embedding_repr.last_hidden_state[batch_idx,:]
                
@@ -83,37 +91,29 @@ def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_pr
                     protein_emb = emb[:s_len].mean(dim=0)
                     results["protein_embs"][identifier] = protein_emb.detach().cpu().numpy().squeeze()
 
+        if len(results["residue_embs"]) >= max_entries or len(results["protein_embs"]) >= max_entries:
+            print(f'Saving embeddings. last_id: {identifier}' )
+
+            save_embeddings(h5_filename, results["residue_embs"])
+            save_embeddings(h5_protein_filename, results["protein_embs"])
+
+            # clean up dictionaries
+            results = {
+                "residue_embs": {},
+                "protein_embs": {},
+            }   
+
 
     passed_time=time.time()-start
     avg_time = passed_time/len(results["residue_embs"]) if per_residue else passed_time/len(results["protein_embs"])
     print('\n############# EMBEDDING STATS #############')
-    print('Total number of per-residue embeddings: {}'.format(len(results["residue_embs"])))
-    print('Total number of per-protein embeddings: {}'.format(len(results["protein_embs"])))
+    print(f'Total number of per-residue embeddings: {len(results["residue_embs"])}')
+    print(f'Total number of per-protein embeddings: {len(results["protein_embs"])}')
     print("Time for generating embeddings: {:.1f}[m] ({:.3f}[s/protein])".format(
         passed_time/60, avg_time ))
     print('\n############# END #############')
     return results
 
-
-def create_protein_batches(df:pd.DataFrame, protein_ids:list[str])->dict:
-    """generates single protein input batches, that can be processed and saved in .h5 file format.
-        Required because for processing large batches RAM limit is quickly exceeded.  
-
-    Args:
-        df (pd.DataFrame): input dataframe
-        protein_ids (list[str]): list of protein name str
-
-    Returns:
-        dict: mapping protein names to sequence data
-    """
-    seq_lists ={}
-    for pid in protein_ids:
-        seq_dl = []
-        #create unique id for each sequ and add to datalist  
-        for i,r in df[df.pdbid == pid].iloc[:].iterrows(): 
-            seq_dl.append((r.pdbid +'_'+ str(i), r.seq))
-        seq_lists[pid] = seq_dl
-    return seq_lists
 
  
 def save_embeddings(output_path:str, emb_dict:dict, saving_pattern = 'a')->None:
@@ -129,69 +129,60 @@ def save_embeddings(output_path:str, emb_dict:dict, saving_pattern = 'a')->None:
             hf.create_dataset(sequence_id, data=embedding)
   
 
-def compute_embedding(model, tokenizer, seq_dict:dict, output_path:str) ->None:
-    """compute embeddings for all proteins in seq_dict
-
-    Args:
-        model (_T5model_): pretrained model
-        tokenizer (T5 Tokenizer): Tokenizer
-        seq_dict (dict): input data. protein_id: seq list
-        output_path (str): h5 file
-    """
-    for prot, seqs in seq_dict.items():
-        print('processing protein:' , prot )
-        results = get_embeddings(model.eval(), tokenizer, seqs=seqs, per_protein=True, per_residue=True, max_length=73)
-    
-        save_embeddings(os.path.join(output_path,"residue_embeddings1.h5"), results["residue_embs"])
-        save_embeddings(os.path.join(output_path,"protein_embeddings1.h5"), results["protein_embs"])
-
-
 
 ### MAIN ###
-def main()
-    #preparing the input data for embedding
-    data_dir = 'Data/data_sets/'
-    filename = 'train_data_prot.csv'
-    
-    df = pd.read_csv(os.path.join(data_dir,filename), index_col=0)
+def main():
+    """
+    The main function prepares the input data for embedding, 
+    loads the T5 model, calculates the embeddings, and saves them to an output file.
+    """
+  
+    #ensure that GPU is available
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    print(f"Using {device}")
 
-    filename = 'val_data_prot.csv'
-    df_v = pd.read_csv(os.path.join(data_dir,filename), index_col=0)
 
-    filename = 'test_data_prot.csv'
-    df_test = pd.read_csv(os.path.join(data_dir,filename), index_col=0)
+    args = sys.argv[1:]
+    if len(args) == 0 or len(args) > 3:
+        print ("invalid no of arguments given. Please specify the input file and optionally embeddings file.")
+        print("Usage: python3 generate_embeddings.py <model_name> (<output_file>)")
+        sys.exit(1)
 
-    filename = 'test_proteins_data.csv'
-    df_ho = pd.read_csv(os.path.join(data_dir,filename), index_col=0)
+    elif len(args) == 1:
+        filename = args[0]
+        embeddings_name = 'embeddings.h5'
+        protein_embeddings_name = 'protein_embeddings.h5'
+
+    elif len(args) == 2:
+        filename = args[0]
+        embeddings_name = args[1]
+        directory, emb_filename = os.path.split(embeddings_name)
+        protein_embeddings_name = os.path.join(directory, 'protein_'+emb_filename)
+
+    #load data
+    df = pd.read_csv(filename), index_col=0)
 
     #strip padding for embedding
     df['seq'] = df.seq.apply(lambda x: x.strip('-'))
-    df_v['seq'] = df_v.seq.apply(lambda x: x.strip('-'))
-    df_test['seq'] = df_test.seq.apply(lambda x: x.strip('-'))
-    df_ho['seq'] = df_ho.seq.apply(lambda x: x.strip('-'))
 
-    protein_ids = list(df.pdbid.unique())
-    protein_v_ids = list(df_v.pdbid.unique())
-    protein_test_ids = list(df_test.pdbid.unique())
-    protein_ho_ids = list(df_ho.pdbid.unique())
+    #write only indices after last saved embedding
+    df = df[df.index > 130245]
 
-    seq_lists = create_protein_batches(df, protein_ids)
-    seq_lists1 = create_protein_batches(df_v, protein_v_ids)
-    seq_lists2 = create_protein_batches(df_test, protein_test_ids)
-    seq_lists3 = create_protein_batches(df_ho, protein_ho_ids)
+    seq_lists = list(df[['id', 'seq']].itertuples(index=False, name=None))
+
 
     model, tokenizer = get_T5_model()
-    print('model device:' ,model.device)
+    print('model device:', model.device)
 
-    #calculate the embeddings -- use GPU--
-    compute_embedding(model.eval(),tokenizer, seq_lists, 'drive/MyDrive/protT5/output')
+    #calculate the embeddings -- use GPU if available
+    get_embeddings(model, tokenizer, seqs=seq_lists, per_protein=True, per_residue=True, max_length=73, max_batch=5000,
+                    h5_filename=embeddings_name, h5_protein_filename=protein_embeddings_name)
 
-    wt_list = [(k, seq) for k, seq in wt_dict.items()]
-
+ 
     # get the embedding vectors
-    wt_emb = get_embeddings(model.eval(), tokenizer, seqs=wt_list, per_protein=True, per_residue=True, max_length=73)
-    save_embeddings('protT5/output/wt_embeddings.h5' , wt_emb['residue_embs'], 'a', )
-    save_embeddings('protT5/output/wt_embeddings.h5' , wt_emb['residue_embs'], 'a', )
+    #wt_emb = get_embeddings(model.eval(), tokenizer, seqs=wt_list, per_protein=True, per_residue=True, max_length=73)
+    #save_embeddings('protT5/output/wt_embeddings.h5' , wt_emb['residue_embs'], 'a', )
+    #save_embeddings('protT5/output/wt_embeddings.h5' , wt_emb['residue_embs'], 'a', )
 
 
 
