@@ -11,12 +11,13 @@ import torch
 import h5py
 import time
 import pandas as pd
+import numpy as np
 from typing import List, Tuple, Dict
 
 
 
 # Load ProtT5 in half-precision (more specifically: the encoder-part of ProtT5-XL-U50) 
-def get_T5_model():
+def get_T5_model(device:str='cuda'):
     model = T5EncoderModel.from_pretrained("Rostlab/prot_t5_xl_half_uniref50-enc")
     model = model.to(device) 
     model = model.eval() 
@@ -27,7 +28,7 @@ def get_T5_model():
 
 def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_protein:bool, word_size:int=1, max_length:int = 73, 
                    max_residues:int=4000, max_seq_len:int=1000, max_batch:int=100, max_entries:int=5000, h5_filename:str='residue_embeddings.h5',
-                    h5_protein_filename:str ='protein_embeddings.h5' ) -> dict:
+                    h5_protein_filename:str ='protein_embeddings.h5', device:str='cuda' ) -> None:
     """  Generate embeddings via batch-processing
 
     Args:
@@ -87,9 +88,9 @@ def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_pr
                
                 if per_residue: # store per-residue embeddings (Lx1024)
                     #average pooling over words
-                    emb = emb.detach().cpu().numpy().squeeze()
-                    emb_s =  np.array([emb[i:i+word_size].mean(dim=0) for i in range(0,emb.shape[0],word_size)])
-                    results["residue_embs"][ identifier ] = emb_s
+                    emb_s = emb.detach().cpu().numpy().squeeze()
+                    emb_s =  np.array([emb_s[i:i+word_size].mean(axis=0) for i in range(0,emb_s.shape[0],word_size)])
+                    results["residue_embs"][ identifier ] = emb
                 if per_protein: # apply average-pooling to derive per-protein embeddings (1024-d)
                     protein_emb = emb[:s_len].mean(dim=0)
                     results["protein_embs"][identifier] = protein_emb.detach().cpu().numpy().squeeze()
@@ -109,13 +110,19 @@ def get_embeddings( model, tokenizer, seqs:List[Tuple], per_residue:bool, per_pr
 
     passed_time=time.time()-start
     avg_time = passed_time/len(results["residue_embs"]) if per_residue else passed_time/len(results["protein_embs"])
+    
+    #save the remaining embeddings
+    save_embeddings(h5_filename, results["residue_embs"])
+    save_embeddings(h5_protein_filename, results["protein_embs"])
+
+
     print('\n############# EMBEDDING STATS #############')
     print(f'Total number of per-residue embeddings: {len(results["residue_embs"])}')
     print(f'Total number of per-protein embeddings: {len(results["protein_embs"])}')
     print("Time for generating embeddings: {:.1f}[m] ({:.3f}[s/protein])".format(
         passed_time/60, avg_time ))
     print('\n############# END #############')
-    return results
+    
 
 
  
@@ -143,6 +150,7 @@ def main():
     #ensure that GPU is available
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(f"Using {device}")
+    emb_dir = os.path.join('Data', 'embeddings')
 
 
     args = sys.argv[1:]
@@ -153,14 +161,18 @@ def main():
 
     elif len(args) == 1:
         filename = args[0]
-        embeddings_name = 'embeddings.h5'
-        protein_embeddings_name = 'protein_embeddings.h5'
+        embeddings_name = os.path.join(emb_dir,'embeddings.h5')
+        protein_embeddings_name = os.path.join(emb_dir,'protein_embeddings.h5')
+        wt_embeddings_name = os.path.join(emb_dir,'wt_embeddings.h5')
+        wt_protein_embeddings_name = os.path.join(emb_dir,'wt_protein_embeddings.h5')
 
     elif len(args) == 2:
         filename = args[0]
         embeddings_name = args[1]
         directory, emb_filename = os.path.split(embeddings_name)
         protein_embeddings_name = os.path.join(directory, 'protein_'+emb_filename)
+        wt_embeddings_name = os.path.join(directory, 'wt_'+emb_filename)
+        wt_protein_embeddings_name = os.path.join(directory, 'wt_protein_'+emb_filename)
 
     #load data
     df = pd.read_csv(filename, index_col=0)
@@ -171,17 +183,27 @@ def main():
     #write only indices after last saved embedding
     df = df[df.index > 130245]
 
+    #get lists of sequences and wild types for embedding. 
+    # Use WT_name as identifier for wt embedding
     seq_lists = list(df[['id', 'seq']].itertuples(index=False, name=None))
+    wt_lists = list(df.drop_duplicates(subset=['WT_name'])[['WT_name', 'wt_p']].itertuples(index=False, name=None))
 
 
-    model, tokenizer = get_T5_model()
+    model, tokenizer = get_T5_model(device=device)
     print('model device:', model.device)
 
     #calculate the embeddings -- use GPU if available
-    get_embeddings(model, tokenizer, seqs=seq_lists, per_protein=True, per_residue=True, max_length=73, max_batch=5000,
-                    h5_filename=embeddings_name, h5_protein_filename=protein_embeddings_name)
+    #get_embeddings(model, tokenizer, seqs=seq_lists, per_protein=True, per_residue=True, max_length=73, max_batch=5000,
+    #                h5_filename=embeddings_name, h5_protein_filename=protein_embeddings_name,device=device)
 
- 
+    
+    get_embeddings(model, tokenizer, seqs=wt_lists, per_protein=True, per_residue=True, max_length=73, max_batch=5000,
+                    h5_filename=wt_embeddings_name, h5_protein_filename=wt_protein_embeddings_name, device=device)
+
+
+
+    #
+
     # get the embedding vectors
     #wt_emb = get_embeddings(model.eval(), tokenizer, seqs=wt_list, per_protein=True, per_residue=True, max_length=73)
     #save_embeddings('protT5/output/wt_embeddings.h5' , wt_emb['residue_embs'], 'a', )
