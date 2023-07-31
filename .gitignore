@@ -331,3 +331,5 @@ site/modules/protml/utils/lightning_utils/index.html
 site/modules/protml/utils/output_utils/index.html
 mkdocs.yml
 mkgendocs.yml
+
+*.h5

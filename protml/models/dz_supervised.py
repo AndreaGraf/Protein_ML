@@ -72,6 +72,7 @@ class ENC_M_dz(pl.LightningModule):
         mu_wt,_ = self.encoder(wt)
         dz = mu - mu_wt
         y_hat = self.measurement(dz)
+        y_hat = y_hat.view(-1)
         loss = self.loss_function(y_hat, y)
 
         return loss

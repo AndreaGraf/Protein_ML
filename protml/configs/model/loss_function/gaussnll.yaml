@@ -1,1 +1,1 @@
-_target_: protml.models.components.GaussNLLLoss
+_target_: automl.models.components.GaussNLLLoss
