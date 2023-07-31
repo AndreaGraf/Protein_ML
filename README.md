@@ -8,17 +8,26 @@ This repository holds the code for processing, analysis and model development on
 
 Datasets can be downloaded from https://zenodo.org/record/7401275. Download the *K50_dG_tables.zip* and *Processed_K50_dG_datasets*
 
-The outline of the project is devided into the sections shown and discussed in the following notebooks:
+## Notebooks and scripts
 
 **1)  Data_Analysis_and_Methods_overview.ipynb**
 
 Exploration of dataset features and discussion of prior related models, used in protein modelling and sequence analysis.
 
-**2)  Experiments_and_Model_training.ipynb**
+**2)  embed_sequences.py**
+A script to generate embeddings from the t5 pretrained protein language model
 
-Outline of the chosen experimental strategy & model training
+run as: 
 
-**3) Model_evaluation_and_outlook.ipynb**
+```console 
+python embed_sequences.py <sequences_csv_name> (<output_file>)
+```
+
+**3) run_MAVE_model.sh**
+
+example model training script, for supervised models
+
+**4) Model_evaluation_and_outlook.ipynb**
 
 Analysis of the predictions made by different model stages and the modelling assumptions, evaluation of ... for improvements and further development
 
