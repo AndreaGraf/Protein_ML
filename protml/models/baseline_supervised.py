@@ -72,6 +72,7 @@ class ENC_M(pl.LightningModule):
     def forward(self, x):
         mu, _ = self.encoder(x)
         y_hat = self.measurement(mu)
+        y_hat = y_hat.view(-1)
         return y_hat
 
 
