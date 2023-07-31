@@ -193,8 +193,8 @@ def main():
     print('model device:', model.device)
 
     #calculate the embeddings -- use GPU if available
-    #get_embeddings(model, tokenizer, seqs=seq_lists, per_protein=True, per_residue=True, max_length=73, max_batch=5000,
-    #                h5_filename=embeddings_name, h5_protein_filename=protein_embeddings_name,device=device)
+    get_embeddings(model, tokenizer, seqs=seq_lists, per_protein=True, per_residue=True, max_length=73, max_batch=5000,
+                    h5_filename=embeddings_name, h5_protein_filename=protein_embeddings_name, device=device)
 
     
     get_embeddings(model, tokenizer, seqs=wt_lists, per_protein=True, per_residue=True, max_length=73, max_batch=5000,
