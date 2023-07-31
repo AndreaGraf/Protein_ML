@@ -156,7 +156,7 @@ def main():
     args = sys.argv[1:]
     if len(args) == 0 or len(args) > 3:
         print ("invalid no of arguments given. Please specify the input file and optionally embeddings file.")
-        print("Usage: python3 generate_embeddings.py <model_name> (<output_file>)")
+        print("Usage: python3 embed_sequences.py <sequences_csv_name> (<output_file>)")
         sys.exit(1)
 
     elif len(args) == 1:
