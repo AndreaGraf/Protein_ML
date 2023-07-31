@@ -1,0 +1,4 @@
+_target_: automl.models.components.GaussianNoise
+model_params:
+  polynomial_order: 2
+ 
